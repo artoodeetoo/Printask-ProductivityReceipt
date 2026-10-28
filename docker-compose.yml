@@ -1,0 +1,24 @@
+services:
+  app:
+    build: .
+    env_file: .env
+    environment:
+      HEALTH_PORT: "8080"
+    ports:
+      - "${UI_PORT:-8081}:${UI_PORT:-8081}"   # web UI; only active when UI_PORT and UI_PASSWORD are set
+    volumes:
+      - printer-data:/data
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "5m"
+        max-file: "3"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/health', timeout=3)"]
+      interval: 60s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  printer-data:

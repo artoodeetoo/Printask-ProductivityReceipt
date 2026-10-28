@@ -1,0 +1,8 @@
+# Dependencies for Printask (Notion -> Claude -> network printer).
+anthropic>=0.40.0
+httpx>=0.27.0
+python-escpos>=3.0
+qrcode[pil]>=7.4.2
+Pillow>=10.0.0
+python-dotenv>=1.0.0
+pytest>=8.0.0

@@ -1,0 +1,48 @@
+# Stack for Portainer's web editor (or any Compose without build/env_file support).
+# The image must already exist on the host: see docs/SYNOLOGY_SETUP.md.
+# Set the variables below in the stack's "Environment variables" section.
+version: "3.8"
+services:
+  app:
+    image: printask:latest
+    environment:
+      NOTION_API_KEY: ${NOTION_API_KEY:-}
+      NOTION_DATABASE_ID: ${NOTION_DATABASE_ID:-}
+      SLACK_BOT_TOKEN: ${SLACK_BOT_TOKEN:-}
+      SLACK_CHANNEL_IDS: ${SLACK_CHANNEL_IDS:-}
+      SLACK_TASK_MODE: ${SLACK_TASK_MODE:-claude}
+      SLACK_KEYWORD: ${SLACK_KEYWORD:-}
+      SLACK_LOOKBACK_HOURS: ${SLACK_LOOKBACK_HOURS:-24}
+      SLACK_MAX_PER_CYCLE: ${SLACK_MAX_PER_CYCLE:-10}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      CLAUDE_MODEL: ${CLAUDE_MODEL:-claude-haiku-5-5}
+      PRINTER_HOST: ${PRINTER_HOST}
+      PRINTER_PORT: ${PRINTER_PORT:-9100}
+      POLL_INTERVAL_SECONDS: ${POLL_INTERVAL_SECONDS:-300}
+      ENABLE_QR_CODES: ${ENABLE_QR_CODES:-true}
+      SHOW_CATEGORY: ${SHOW_CATEGORY:-true}
+      NOTION_WRITE_BACK_PRIORITY: ${NOTION_WRITE_BACK_PRIORITY:-false}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      UI_PORT: ${UI_PORT:-}
+      UI_PASSWORD: ${UI_PASSWORD:-}
+      SETTINGS_PATH: /data/settings.json
+      HISTORY_PATH: /data/history.db
+      DEDUPE_WINDOW_DAYS: ${DEDUPE_WINDOW_DAYS:-7}
+      STATE_PATH: /data/printed.json   # legacy file, imported once if it exists
+    ports:
+      - "${UI_PORT:-8081}:${UI_PORT:-8081}"   # web UI; only active when UI_PORT and UI_PASSWORD are set
+    volumes:
+      - printer-data:/data
+    restart: unless-stopped
+    # Synology's Docker package defaults to a "db" log driver whose logs
+    # Portainer and `docker logs` cannot read.
+    logging:
+      driver: json-file
+      options:
+        max-size: "5m"
+        max-file: "3"
+    # Only if the container fails with "operation not permitted" on an old Docker engine:
+    # security_opt:
+    #   - seccomp:unconfined
+volumes:
+  printer-data:
